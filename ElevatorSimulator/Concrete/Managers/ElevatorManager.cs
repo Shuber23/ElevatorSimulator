@@ -7,7 +7,7 @@ using ElevatorSimulator.Abstract;
 
 namespace ElevatorSimulator.Concrete.Managers
 {
-    class ElevatorManager: IElevatorManager
+    class Dispatcher: IDispatcher
     {
     }
 }

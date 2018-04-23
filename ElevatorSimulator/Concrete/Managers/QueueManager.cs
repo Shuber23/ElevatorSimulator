@@ -8,7 +8,7 @@ using ElevatorSimulator.Models;
 
 namespace ElevatorSimulator.Concrete.Managers
 {
-    class QueueManager: IQueueManager
+    public class QueueManager: IQueueManager
     {
         private List<Passenger> goingUpPassengerQueue;
         private List<Passenger> goingDownPassengerQueue;
@@ -20,6 +20,32 @@ namespace ElevatorSimulator.Concrete.Managers
             {
                 return goingUpPassengerQueue;
             }
+        }
+
+        public List<Passenger> GoingDownPassengerQueue
+        {
+            get
+            {
+                return goingDownPassengerQueue;
+            }
+        }
+
+        public void AddToQueue(Passenger passenger)
+        {
+            if (goingDownPassengerQueue == null)
+            {
+                goingDownPassengerQueue = new List<Passenger>();
+            }
+            goingDownPassengerQueue.Add(passenger);
+        }
+
+        public void RemoveFromQueue(Passenger passenger)
+        {
+            if (goingDownPassengerQueue == null)
+            {
+                goingDownPassengerQueue = new List<Passenger>();
+            }
+            goingDownPassengerQueue.Add(passenger);
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ElevatorSimulator.Abstract
 {
-    interface IElevatorManager
+    interface IDispatcher
     {
     }
 }
