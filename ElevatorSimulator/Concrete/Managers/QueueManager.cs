@@ -8,44 +8,34 @@ using ElevatorSimulator.Models;
 
 namespace ElevatorSimulator.Concrete.Managers
 {
-    public class QueueManager: IQueueManager
+    class QueueManager: Manager
     {
-        private List<Passenger> goingUpPassengerQueue;
-        private List<Passenger> goingDownPassengerQueue;
-        //private r object locked;
+        private readonly List<Floor> floors;
 
-        public List<Passenger> GoingUpPassengerQueue
+        public QueueManager(IDispatcher dispatcher, List<Floor> floors) : base(dispatcher) => this.floors = floors;
+
+        public void AddToQueue(Passenger passenger, int floorIndex, States.Direction direction)
         {
-            get
+            if (direction == States.Direction.Down)
             {
-                return goingUpPassengerQueue;
+                floors[floorIndex].GoingDownPassengerQueue.Add(passenger);
+            }
+            else
+            {
+                floors[floorIndex].GoingUpPassengerQueue.Add(passenger);
             }
         }
 
-        public List<Passenger> GoingDownPassengerQueue
+        public void RemoveFromQueue(Passenger passenger, int floorIndex, States.Direction direction)
         {
-            get
+            if (direction == States.Direction.Down)
             {
-                return goingDownPassengerQueue;
+                floors[floorIndex].GoingDownPassengerQueue.Remove(passenger);
             }
-        }
-
-        public void AddToQueue(Passenger passenger)
-        {
-            if (goingDownPassengerQueue == null)
+            else
             {
-                goingDownPassengerQueue = new List<Passenger>();
+                floors[floorIndex].GoingUpPassengerQueue.Remove(passenger);
             }
-            goingDownPassengerQueue.Add(passenger);
-        }
-
-        public void RemoveFromQueue(Passenger passenger)
-        {
-            if (goingDownPassengerQueue == null)
-            {
-                goingDownPassengerQueue = new List<Passenger>();
-            }
-            goingDownPassengerQueue.Add(passenger);
         }
     }
 }

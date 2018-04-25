@@ -7,7 +7,11 @@ using ElevatorSimulator.Abstract;
 
 namespace ElevatorSimulator.Concrete.Buttons
 {
-    class DownCallButton: Button
+    internal class DownCallButton: Button
     {
+        public DownCallButton(int floorLocation): base(floorLocation)
+        {
+
+        }
     }
 }

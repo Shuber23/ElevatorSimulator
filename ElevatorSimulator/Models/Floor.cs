@@ -9,19 +9,39 @@ using ElevatorSimulator.Concrete.Managers;
 
 namespace ElevatorSimulator.Models
 {
-    class Floor
+    internal class Floor
     {
         private readonly Dictionary<string, Button> buttons;
-        private readonly IQueueManager queueManager;
 
-        private event EventHandler OnElevatorArrived;
-        private event EventHandler OnPassengerArrived;
+        private List<Passenger> goingUpPassengerQueue = new List<Passenger>();
+        private List<Passenger> goingDownPassengerQueue = new List<Passenger>();
+        public int floorIndex;
 
-        public Floor()
+        private event EventHandler ElevatorArrived;
+        private event EventHandler PassengerArrived;
+
+        public Floor(int floorIndex)
         {
-            buttons.Add("UpCallButton", new UpCallButton());
-            buttons.Add("DownCallButton", new DownCallButton());
-            queueManager = new QueueManager();
+            this.floorIndex = floorIndex;
+            buttons.Add("UpCallButton", new UpCallButton(floorIndex));
+            buttons.Add("DownCallButton", new DownCallButton(floorIndex));
         }
+
+        public List<Passenger> GoingUpPassengerQueue
+        {
+            get
+            {
+                return goingUpPassengerQueue;
+            }
+        }
+
+        public List<Passenger> GoingDownPassengerQueue
+        {
+            get
+            {
+                return goingDownPassengerQueue;
+            }
+        }
+
     }
 }

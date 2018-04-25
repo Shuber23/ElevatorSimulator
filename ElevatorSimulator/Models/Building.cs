@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ElevatorSimulator.Abstract;
+using ElevatorSimulator.Concrete.Managers;
 
 namespace ElevatorSimulator.Models
 {
@@ -16,15 +18,19 @@ namespace ElevatorSimulator.Models
             elevators = new List<Elevator>();
             floors = new List<Floor>();
 
-            for (int i = 0; i < floorCount; i++)
+            for (int floorIndex = 0; floorIndex < floorCount; floorIndex++)
             {
-                floors.Add(new Floor());
+                floors.Add(new Floor(floorIndex));
             }
 
-            for (int i = 0; i < elevatorCount; i++)
+            for (int elevatorIndex = 0; elevatorIndex < elevatorCount; elevatorIndex++)
             {
                 elevators.Add(new Elevator(4, 300));
             }
+
+            IDispatcher dispatcher = Dispatcher.GetInstance(floors);
         }
+
+        
     }
 }
