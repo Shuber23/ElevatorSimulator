@@ -28,7 +28,16 @@ namespace ElevatorSimulator.Models
                 elevators.Add(new Elevator(4, 300));
             }
 
-            IDispatcher dispatcher = Dispatcher.GetInstance(floors);
+            IDispatcher dispatcher = Dispatcher.GetInstance();
+            Manager passengerManager = new PassengerManager(dispatcher);
+            Manager elevatorManager = new ElevatorManager(dispatcher, elevators);
+            Manager queueManager = new QueueManager(dispatcher, floors);
+
+            dispatcher.PassengerManager = passengerManager;
+            dispatcher.ElevatorManager = elevatorManager;
+            dispatcher.QueueManager = queueManager;
+
+            dispatcher.CallElevator();
         }
 
         

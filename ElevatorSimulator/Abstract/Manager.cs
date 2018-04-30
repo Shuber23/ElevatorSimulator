@@ -10,8 +10,15 @@ namespace ElevatorSimulator.Abstract
     {
         protected readonly IDispatcher dispatcher;
 
+        public event EventHandler passengerCalledElevator;
+
         protected Manager(IDispatcher dispatcher) => this.dispatcher = dispatcher;
 
-        public abstract T GetItem<T>() where T : class;
+        public abstract object GetItem(States.Direction direction);
+
+        public void OnPassengerCalledElevator(EventArgs e)
+        {
+            passengerCalledElevator?.Invoke(this, e);
+        }
     }
 }

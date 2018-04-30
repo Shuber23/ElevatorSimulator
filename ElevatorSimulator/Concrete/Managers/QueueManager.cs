@@ -8,34 +8,52 @@ using ElevatorSimulator.Models;
 
 namespace ElevatorSimulator.Concrete.Managers
 {
-    class QueueManager: Manager
+    class QueueManager: Manager, IQueue
     {
         private readonly List<Floor> floors;
 
         public QueueManager(IDispatcher dispatcher, List<Floor> floors) : base(dispatcher) => this.floors = floors;
 
-        public void AddToQueue(Passenger passenger, int floorIndex, States.Direction direction)
+        private void AddToQueue(Passenger passenger)
         {
-            if (direction == States.Direction.Down)
+            if (passenger.Direction == States.Direction.Down)
             {
-                floors[floorIndex].GoingDownPassengerQueue.Add(passenger);
+                floors[passenger.CurrentFloorIndex].GoingDownPassengerQueue.Add(passenger);
             }
             else
             {
-                floors[floorIndex].GoingUpPassengerQueue.Add(passenger);
+                floors[passenger.CurrentFloorIndex].GoingUpPassengerQueue.Add(passenger);
             }
         }
 
-        public void RemoveFromQueue(Passenger passenger, int floorIndex, States.Direction direction)
+        private void RemoveFromQueue(Passenger passenger)
         {
-            if (direction == States.Direction.Down)
+            if (passenger.Direction == States.Direction.Down)
             {
-                floors[floorIndex].GoingDownPassengerQueue.Remove(passenger);
+                floors[passenger.CurrentFloorIndex].GoingDownPassengerQueue.Remove(passenger);
             }
             else
             {
-                floors[floorIndex].GoingUpPassengerQueue.Remove(passenger);
+                floors[passenger.CurrentFloorIndex].GoingUpPassengerQueue.Remove(passenger);
             }
+        }
+
+        public void WorkWithQueue(Passenger passenger)
+        {
+            if (floors[passenger.CurrentFloorIndex].GoingUpPassengerQueue.Contains(passenger) ||
+                floors[passenger.CurrentFloorIndex].GoingDownPassengerQueue.Contains(passenger))
+            {
+                RemoveFromQueue(passenger);
+            }
+            else
+            {
+                AddToQueue(passenger);
+            }
+        }
+
+        public override object GetItem(States.Direction direction)
+        {
+            throw new NotImplementedException();
         }
     }
 }

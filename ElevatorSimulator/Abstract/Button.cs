@@ -16,10 +16,10 @@ namespace ElevatorSimulator.Abstract
             this.floorLocation = floorLocation;
         }
 
-        public void Press()
-        {
-            ButtonPressed += Dispatcher.GetInstance().OnButtonPressed;
-        }
+        //public void Press()
+        //{
+        //    ButtonPressed += Dispatcher.GetInstance().OnButtonPressed;
+        //}
 
     }
 }

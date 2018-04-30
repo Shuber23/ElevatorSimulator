@@ -24,22 +24,32 @@ namespace ElevatorSimulator.Concrete.Managers
         private List<Elevator> GetElevatorsByCurrentFloorPosition(int floorIndex) =>
             elevators.FindAll(x => x.CurrentFloorIndex == floorIndex);
 
-        //public override Elevator GetItem<Elevator>() => 
-        private Elevator FindFreeElevator() => GetElevatorsByStatus(States.ElevatorState.Waiting).First();
-        private Elevator FindAvaliableElevator(States.PassengerState passengerState)
+        public override object GetItem(States.Direction passengerDirection) =>
+            FindAvaliableElevator(passengerDirection);
+
+        private Elevator FindFreeElevator() => 
+            GetElevatorsByStatus(States.ElevatorState.Waiting).First();
+
+        private Elevator FindAvaliableElevator(States.Direction passengerDirection)
         {
             Elevator elevator = FindFreeElevator();
             if (elevator != null)
             {
                 return elevator;
             }
-            //if (passengerState == p)
-            //{
-                
-            //}
-            //elevator = GetElevatorByStatus(States.ElevatorState.GoingUp);
-            return null;
+
+            switch (passengerDirection)
+            {
+                case States.Direction.Up:
+                    return GetElevatorsByStatus(States.ElevatorState.GoingUp).First();
+                case States.Direction.Down:
+                    return GetElevatorsByStatus(States.ElevatorState.GoingDown).First();
+                default:
+                    return null;
+            }
         }
+
+
 
     }
 }

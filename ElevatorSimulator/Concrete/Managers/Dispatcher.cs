@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 using ElevatorSimulator.Abstract;
+using ElevatorSimulator.Events;
 using ElevatorSimulator.Models;
+using Timer = System.Timers.Timer;
 
 namespace ElevatorSimulator.Concrete.Managers
 {
@@ -21,7 +23,7 @@ namespace ElevatorSimulator.Concrete.Managers
 
         private readonly object locker = new object();
 
-        public static Dispatcher GetInstance(List<Floor> floors = null)
+        public static Dispatcher GetInstance()
         {
             if (instance == null)
             {
@@ -30,11 +32,28 @@ namespace ElevatorSimulator.Concrete.Managers
             return instance;
         }
 
-        public Elevator FindAvaliableElevator(States.Direction direction) => ElevatorManager.GetItem<Elevator>();
-
-        public void OnButtonPressed(object sender, EventArgs e)
+        public object GetItem(Manager manager, States.Direction direction = States.Direction.None)
         {
-           //queueManager.AddToQueue();
+            if (ElevatorManager == manager)
+            {
+                return ElevatorManager.GetItem(direction);
+            }
+            if (PassengerManager == manager)
+            {
+                return ElevatorManager.GetItem(direction);
+            }
+            return null;
+        }
+
+        public void CallElevator()
+        {
+            ((ICallElevator)PassengerManager).CallElevator(new Passenger(80, States.Direction.None, 3, 0));
+        }
+
+        public void OnPassengerCalledElevator(PassengerEventArgs e)
+        {
+            ThreadPool.QueueUserWorkItem(delegate { ((IQueue)QueueManager).WorkWithQueue(e.passengerWhoRisedAnEvent); });
+            ElevatorManager.GetItem(e.passengerWhoRisedAnEvent.Direction);
         }
     }
 }

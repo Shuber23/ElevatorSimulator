@@ -7,7 +7,7 @@ using static ElevatorSimulator.States;
 
 namespace ElevatorSimulator.Models
 {
-    internal class Passenger
+    public class Passenger
     {
         private readonly int weight;
         public PassengerState state;
@@ -15,18 +15,28 @@ namespace ElevatorSimulator.Models
         private int floorIndex;
         private int destinationFloorIndex;
 
-        public Passenger(int passengerWeight, Direction direction, int floorIndex)
+        public Passenger(int passengerWeight, Direction direction, int floorIndex, int destinationFloorIndex)
         {
             weight = passengerWeight;
             Direction = direction;
             this.floorIndex = floorIndex;
+            this.destinationFloorIndex = destinationFloorIndex;
         }
 
         public int Weight { get; }
 
-        public int CurrentFloorIndex { get; set; }
+        public int CurrentFloorIndex
+        {
+            get => floorIndex;
+            set => floorIndex = value;
 
-        public int DestinationFloorIndex { get; set; }
+        }
+
+        public int DestinationFloorIndex
+        {
+            get => destinationFloorIndex;
+            set => destinationFloorIndex = value;
+        }
 
         public Direction Direction { get; set; }
     }

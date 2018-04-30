@@ -22,6 +22,7 @@ namespace ElevatorSimulator.Models
 
         public Floor(int floorIndex)
         {
+            buttons = new Dictionary<string, Button>();
             this.floorIndex = floorIndex;
             buttons.Add("UpCallButton", new UpCallButton(floorIndex));
             buttons.Add("DownCallButton", new DownCallButton(floorIndex));

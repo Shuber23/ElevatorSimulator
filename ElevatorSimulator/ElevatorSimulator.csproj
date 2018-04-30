@@ -43,7 +43,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Abstract\Button.cs" />
+    <Compile Include="Abstract\ICallElevator.cs" />
     <Compile Include="Abstract\IDispatcher.cs" />
+    <Compile Include="Abstract\IQueue.cs" />
     <Compile Include="Abstract\Manager.cs" />
     <Compile Include="Abstract\IMovable.cs" />
     <Compile Include="Abstract\IView.cs" />

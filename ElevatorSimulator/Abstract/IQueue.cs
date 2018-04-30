@@ -5,13 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using ElevatorSimulator.Models;
 
-namespace ElevatorSimulator
+namespace ElevatorSimulator.Abstract
 {
-    class Program
+    interface IQueue
     {
-        static void Main(string[] args)
-        {
-            Building building = new Building(3, 4);
-        }
+        void WorkWithQueue(Passenger passenger);
     }
 }
