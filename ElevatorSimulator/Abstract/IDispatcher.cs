@@ -16,7 +16,11 @@ namespace ElevatorSimulator.Abstract
 
         object GetItem(Manager manager, States.Direction direction);
 
-        void OnPassengerCalledElevator(PassengerEventArgs e);
+        void PassengerCalledElevatorEventHandler(object sender, PassengerEventArgs e);
+
+        void PassengerEnteredElevatorEventHandler(object sender, PassengerEventArgs e);
+
+        void ElevatorArrivedEventHandler(object sender, ElevatorEventArgs e);
 
         void CallElevator();
     }

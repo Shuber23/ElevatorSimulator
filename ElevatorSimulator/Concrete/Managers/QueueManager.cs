@@ -11,30 +11,37 @@ namespace ElevatorSimulator.Concrete.Managers
     class QueueManager: Manager, IQueue
     {
         private readonly List<Floor> floors;
+        private object locker = new object();
 
         public QueueManager(IDispatcher dispatcher, List<Floor> floors) : base(dispatcher) => this.floors = floors;
 
         private void AddToQueue(Passenger passenger)
         {
-            if (passenger.Direction == States.Direction.Down)
+            lock (locker)
             {
-                floors[passenger.CurrentFloorIndex].GoingDownPassengerQueue.Add(passenger);
-            }
-            else
-            {
-                floors[passenger.CurrentFloorIndex].GoingUpPassengerQueue.Add(passenger);
+                if (passenger.Direction == States.Direction.Down)
+                {
+                    floors[passenger.CurrentFloorIndex].GoingDownPassengerQueue.Add(passenger);
+                }
+                else
+                {
+                    floors[passenger.CurrentFloorIndex].GoingUpPassengerQueue.Add(passenger);
+                }
             }
         }
 
         private void RemoveFromQueue(Passenger passenger)
         {
-            if (passenger.Direction == States.Direction.Down)
+            lock (locker)
             {
-                floors[passenger.CurrentFloorIndex].GoingDownPassengerQueue.Remove(passenger);
-            }
-            else
-            {
-                floors[passenger.CurrentFloorIndex].GoingUpPassengerQueue.Remove(passenger);
+                if (passenger.Direction == States.Direction.Down)
+                {
+                    floors[passenger.CurrentFloorIndex].GoingDownPassengerQueue.Remove(passenger);
+                }
+                else
+                {
+                    floors[passenger.CurrentFloorIndex].GoingUpPassengerQueue.Remove(passenger);
+                }
             }
         }
 

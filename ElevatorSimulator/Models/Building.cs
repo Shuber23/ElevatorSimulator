@@ -37,9 +37,15 @@ namespace ElevatorSimulator.Models
             dispatcher.ElevatorManager = elevatorManager;
             dispatcher.QueueManager = queueManager;
 
+            passengerManager.PassengerCalledElevator += dispatcher.PassengerCalledElevatorEventHandler;
+
             dispatcher.CallElevator();
+            System.Threading.Thread.Sleep(120000);
         }
 
-        
+        //private void PassengerManagerOnPassengerCalledElevator(object sender, EventArgs eventArgs)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }

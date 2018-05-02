@@ -17,9 +17,6 @@ namespace ElevatorSimulator.Models
         private List<Passenger> goingDownPassengerQueue = new List<Passenger>();
         public int floorIndex;
 
-        private event EventHandler ElevatorArrived;
-        private event EventHandler PassengerArrived;
-
         public Floor(int floorIndex)
         {
             buttons = new Dictionary<string, Button>();

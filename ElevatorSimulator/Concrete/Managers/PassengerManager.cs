@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Services;
 using System.Text;
 using System.Threading.Tasks;
 using ElevatorSimulator.Abstract;
@@ -15,12 +16,11 @@ namespace ElevatorSimulator.Concrete.Managers
         {
             
         }
-        //public event EventHandler passengerCalledElevator;
         public void CallElevator(Passenger passenger)
         {
             UpdatePassengerDirection(passenger);
-            dispatcher.OnPassengerCalledElevator(new PassengerEventArgs(passenger));
-            //FindAvailableElevator(passenger.Direction);
+            OnPassengerCalledElevator(new PassengerEventArgs(passenger));
+            //dispatcher.OnPassengerCalledElevator(new PassengerEventArgs(passenger));
         }
 
         private void UpdatePassengerDirection(Passenger passenger)
@@ -42,5 +42,10 @@ namespace ElevatorSimulator.Concrete.Managers
 
         private Elevator FindAvailableElevator(States.Direction direction) =>
             dispatcher.GetItem(this, direction) as Elevator;
+
+        private void EnterTheElevator()
+        {
+            
+        }
     }
 }

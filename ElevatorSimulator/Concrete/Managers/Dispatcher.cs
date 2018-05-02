@@ -17,6 +17,8 @@ namespace ElevatorSimulator.Concrete.Managers
         public Manager QueueManager { get; set; }
         public Manager ElevatorManager { get; set; }
         public Manager PassengerManager { get; set; }
+
+        public delegate void EventHandler(object sender, EventArgs e);
         
         //private readonly List<Elevator> elevators;
         private Timer floorChecker;
@@ -30,6 +32,11 @@ namespace ElevatorSimulator.Concrete.Managers
                 instance = new Dispatcher();
             }
             return instance;
+        }
+
+        private Dispatcher()
+        {
+
         }
 
         public object GetItem(Manager manager, States.Direction direction = States.Direction.None)
@@ -47,13 +54,29 @@ namespace ElevatorSimulator.Concrete.Managers
 
         public void CallElevator()
         {
-            ((ICallElevator)PassengerManager).CallElevator(new Passenger(80, States.Direction.None, 3, 0));
+            ((ICallElevator)PassengerManager).CallElevator(new Passenger(80, States.Direction.None, 0, 3));
         }
 
-        public void OnPassengerCalledElevator(PassengerEventArgs e)
+        public void PassengerCalledElevatorEventHandler(object sender, PassengerEventArgs e)
         {
-            ThreadPool.QueueUserWorkItem(delegate { ((IQueue)QueueManager).WorkWithQueue(e.passengerWhoRisedAnEvent); });
-            ElevatorManager.GetItem(e.passengerWhoRisedAnEvent.Direction);
+            ThreadPool.QueueUserWorkItem(delegate { ((IQueue)QueueManager).WorkWithQueue(e.PassengerWhoRisedAnEvent); });
+            ThreadPool.QueueUserWorkItem(delegate { ((IMovable)ElevatorManager).SendElevatorForPassenger(e.PassengerWhoRisedAnEvent); });
+        }
+
+        public void PassengerEnteredElevatorEventHandler(object sender, PassengerEventArgs e)
+        {
+            ThreadPool.QueueUserWorkItem(delegate { ((IQueue)QueueManager).WorkWithQueue(e.PassengerWhoRisedAnEvent); });
+        }
+
+        public void ElevatorArrivedEventHandler(object sender, ElevatorEventArgs e)
+        {
+            foreach (var destinationFloorIndex in e.elevatorWhoRisedAnEvent.DestinationFloorIndexes)
+            {
+                if (destinationFloorIndex == e.elevatorWhoRisedAnEvent.CurrentFloorIndex)
+                {
+                    
+                }
+            }
         }
     }
 }
