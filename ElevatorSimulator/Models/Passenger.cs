@@ -15,15 +15,19 @@ namespace ElevatorSimulator.Models
         private int floorIndex;
         private int destinationFloorIndex;
 
-        public Passenger(int passengerWeight, Direction direction, int floorIndex, int destinationFloorIndex)
+        public int passengerIndex;
+
+        public Passenger(int passengerWeight, Direction direction, int floorIndex, int destinationFloorIndex, int passengerIndex)
         {
             weight = passengerWeight;
             Direction = direction;
             this.floorIndex = floorIndex;
             this.destinationFloorIndex = destinationFloorIndex;
+
+            this.passengerIndex = passengerIndex;
         }
 
-        public int Weight { get; }
+        public int Weight => weight;
 
         public int CurrentFloorIndex
         {

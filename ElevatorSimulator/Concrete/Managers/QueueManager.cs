@@ -28,6 +28,7 @@ namespace ElevatorSimulator.Concrete.Managers
                     floors[passenger.CurrentFloorIndex].GoingUpPassengerQueue.Add(passenger);
                 }
             }
+            Console.WriteLine("Passenger added to queue!");
         }
 
         private void RemoveFromQueue(Passenger passenger)
@@ -43,6 +44,7 @@ namespace ElevatorSimulator.Concrete.Managers
                     floors[passenger.CurrentFloorIndex].GoingUpPassengerQueue.Remove(passenger);
                 }
             }
+            Console.WriteLine("Passenger removed from queue!");
         }
 
         public void WorkWithQueue(Passenger passenger)

@@ -52,19 +52,23 @@ namespace ElevatorSimulator.Concrete.Managers
             return null;
         }
 
-        public void CallElevator()
+        public void CallElevator(int passengerIndex)
         {
-            ((ICallElevator)PassengerManager).CallElevator(new Passenger(80, States.Direction.None, 0, 3));
+            Randomizer.Random();
+            ((ICallElevator) PassengerManager).CallElevator(new Passenger(Randomizer.weight, States.Direction.None,
+                Randomizer.currentFloor, Randomizer.destinationFloor, passengerIndex));
         }
 
         public void PassengerCalledElevatorEventHandler(object sender, PassengerEventArgs e)
         {
+            Console.WriteLine("Passenger {0} called elevator!", e.PassengerWhoRisedAnEvent.passengerIndex);
             ThreadPool.QueueUserWorkItem(delegate { ((IQueue)QueueManager).WorkWithQueue(e.PassengerWhoRisedAnEvent); });
             ThreadPool.QueueUserWorkItem(delegate { ((IMovable)ElevatorManager).SendElevatorForPassenger(e.PassengerWhoRisedAnEvent); });
         }
 
         public void PassengerEnteredElevatorEventHandler(object sender, PassengerEventArgs e)
         {
+            Console.WriteLine("Passenger {0} entered the elevator!", e.PassengerWhoRisedAnEvent.passengerIndex);
             ThreadPool.QueueUserWorkItem(delegate { ((IQueue)QueueManager).WorkWithQueue(e.PassengerWhoRisedAnEvent); });
         }
 

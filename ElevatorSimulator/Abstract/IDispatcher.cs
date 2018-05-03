@@ -22,6 +22,6 @@ namespace ElevatorSimulator.Abstract
 
         void ElevatorArrivedEventHandler(object sender, ElevatorEventArgs e);
 
-        void CallElevator();
+        void CallElevator(int passengerIndex);
     }
 }

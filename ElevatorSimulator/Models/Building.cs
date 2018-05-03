@@ -25,7 +25,7 @@ namespace ElevatorSimulator.Models
 
             for (int elevatorIndex = 0; elevatorIndex < elevatorCount; elevatorIndex++)
             {
-                elevators.Add(new Elevator(4, 300));
+                elevators.Add(new Elevator(4, 300, elevatorIndex));
             }
 
             IDispatcher dispatcher = Dispatcher.GetInstance();
@@ -39,7 +39,13 @@ namespace ElevatorSimulator.Models
 
             passengerManager.PassengerCalledElevator += dispatcher.PassengerCalledElevatorEventHandler;
 
-            dispatcher.CallElevator();
+            int i = 0;
+            while (i < 100)
+            {
+                dispatcher.CallElevator(i);
+                i++;
+                System.Threading.Thread.Sleep(5000);
+            }
             System.Threading.Thread.Sleep(120000);
         }
 

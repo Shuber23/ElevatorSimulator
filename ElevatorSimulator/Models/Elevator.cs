@@ -12,31 +12,70 @@ namespace ElevatorSimulator.Models
         private readonly int passengerCapacity;
         private readonly int weightCapacity;
 
-        private List<Floor> floorsToVisit;
+        private List<int> floorsToVisit;
         private List<Passenger> passengerInside;
         private int weightInside;
         private object locker = new object();
+        public int elevatorIndex;
 
         internal ElevatorState state;
 
-        public Elevator(int passengerCapacity, int weightCapacity)
+        public Elevator(int passengerCapacity, int weightCapacity, int elevatorIndex)
         {
             this.passengerCapacity = passengerCapacity;
             this.weightCapacity = weightCapacity;
             passengerInside = new List<Passenger>();
             state = ElevatorState.Waiting;
             CurrentFloorIndex = 1;
-            DestinationFloorIndexes = new List<int>();
+            floorsToVisit = new List<int>();
+
+            this.elevatorIndex = elevatorIndex;
         }
 
-        public bool IsFull => passengerInside.Count == passengerCapacity;
+        public bool IsEmpty
+        {
+            get
+            {
+                lock (locker)
+                {
+                    return passengerInside.Count == 0;
+                }
+            }
+        }
 
-        public List<int> DestinationFloorIndexes { get; set; }
+        public bool IsFull
+        {
+            get
+            {
+                lock (locker)
+                {
+                    return passengerInside.Count == passengerCapacity;
+                }
+            }
+        }
+
+        public List<int> DestinationFloorIndexes
+        {
+            get
+            {
+                lock (locker)
+                {
+                    return floorsToVisit;
+                }
+            }
+            set
+            {
+                lock (locker)
+                {
+                    floorsToVisit = value;
+                }
+            }
+        }
 
         public int CurrentFloorIndex { get; set; }
 
         public bool CanUseElevator(int incomingPassengerWeight)
-            => weightInside + incomingPassengerWeight <= weightInside && !IsFull;
+            => weightInside + incomingPassengerWeight <= weightCapacity && !IsFull;
 
         public void EnterInElevator(Passenger passenger)
         {
