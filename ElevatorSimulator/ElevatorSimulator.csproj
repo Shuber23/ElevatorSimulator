@@ -55,6 +55,7 @@
     <Compile Include="Concrete\Managers\ElevatorManager.cs" />
     <Compile Include="Concrete\Managers\PassengerManager.cs" />
     <Compile Include="Concrete\Managers\QueueManager.cs" />
+    <Compile Include="Events\ElevatorEventArgs.cs" />
     <Compile Include="Events\PassengerEventArgs.cs" />
     <Compile Include="Models\Building.cs" />
     <Compile Include="Models\Elevator.cs" />
@@ -62,6 +63,7 @@
     <Compile Include="Models\Passenger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Randomizer.cs" />
     <Compile Include="States.cs" />
   </ItemGroup>
   <ItemGroup>

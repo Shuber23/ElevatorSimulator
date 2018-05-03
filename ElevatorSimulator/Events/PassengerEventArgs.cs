@@ -9,11 +9,17 @@ namespace ElevatorSimulator.Events
 {
     public class PassengerEventArgs: EventArgs
     {
-        public Passenger passengerWhoRisedAnEvent;
+        public Passenger PassengerWhoRisedAnEvent;
+        public List<Passenger> PassengersWhichRisedAnEventList;
 
         public PassengerEventArgs(Passenger passengerWhoRisedAnEvent)
         {
-            this.passengerWhoRisedAnEvent = passengerWhoRisedAnEvent;
+            PassengerWhoRisedAnEvent = passengerWhoRisedAnEvent;
+        }
+
+        public PassengerEventArgs(List<Passenger> passengersWhichRisedAnEventList)
+        {
+            PassengersWhichRisedAnEventList = passengersWhichRisedAnEventList;
         }
     }
 }

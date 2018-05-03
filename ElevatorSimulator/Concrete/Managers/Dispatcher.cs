@@ -17,6 +17,8 @@ namespace ElevatorSimulator.Concrete.Managers
         public Manager QueueManager { get; set; }
         public Manager ElevatorManager { get; set; }
         public Manager PassengerManager { get; set; }
+
+        public delegate void EventHandler(object sender, EventArgs e);
         
         //private readonly List<Elevator> elevators;
         private Timer floorChecker;
@@ -32,6 +34,11 @@ namespace ElevatorSimulator.Concrete.Managers
             return instance;
         }
 
+        private Dispatcher()
+        {
+
+        }
+
         public object GetItem(Manager manager, States.Direction direction = States.Direction.None)
         {
             if (ElevatorManager == manager)
@@ -45,15 +52,35 @@ namespace ElevatorSimulator.Concrete.Managers
             return null;
         }
 
-        public void CallElevator()
+        public void CallElevator(int passengerIndex)
         {
-            ((ICallElevator)PassengerManager).CallElevator(new Passenger(80, States.Direction.None, 3, 0));
+            Randomizer.Random();
+            ((ICallElevator) PassengerManager).CallElevator(new Passenger(Randomizer.weight, States.Direction.None,
+                Randomizer.currentFloor, Randomizer.destinationFloor, passengerIndex));
         }
 
-        public void OnPassengerCalledElevator(PassengerEventArgs e)
+        public void PassengerCalledElevatorEventHandler(object sender, PassengerEventArgs e)
         {
-            ThreadPool.QueueUserWorkItem(delegate { ((IQueue)QueueManager).WorkWithQueue(e.passengerWhoRisedAnEvent); });
-            ElevatorManager.GetItem(e.passengerWhoRisedAnEvent.Direction);
+            Console.WriteLine("Passenger {0} called elevator!", e.PassengerWhoRisedAnEvent.passengerIndex);
+            ThreadPool.QueueUserWorkItem(delegate { ((IQueue)QueueManager).WorkWithQueue(e.PassengerWhoRisedAnEvent); });
+            ThreadPool.QueueUserWorkItem(delegate { ((IMovable)ElevatorManager).SendElevatorForPassenger(e.PassengerWhoRisedAnEvent); });
+        }
+
+        public void PassengerEnteredElevatorEventHandler(object sender, PassengerEventArgs e)
+        {
+            Console.WriteLine("Passenger {0} entered the elevator!", e.PassengerWhoRisedAnEvent.passengerIndex);
+            ThreadPool.QueueUserWorkItem(delegate { ((IQueue)QueueManager).WorkWithQueue(e.PassengerWhoRisedAnEvent); });
+        }
+
+        public void ElevatorArrivedEventHandler(object sender, ElevatorEventArgs e)
+        {
+            foreach (var destinationFloorIndex in e.elevatorWhoRisedAnEvent.DestinationFloorIndexes)
+            {
+                if (destinationFloorIndex == e.elevatorWhoRisedAnEvent.CurrentFloorIndex)
+                {
+                    
+                }
+            }
         }
     }
 }

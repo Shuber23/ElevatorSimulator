@@ -7,34 +7,100 @@ using static ElevatorSimulator.States;
 
 namespace ElevatorSimulator.Models
 {
-    internal class Elevator
+    public class Elevator
     {
         private readonly int passengerCapacity;
         private readonly int weightCapacity;
 
-        private List<Floor> floorsToVisit;
-        private List<Passenger> peopleInside;
+        private List<int> floorsToVisit;
+        private List<Passenger> passengerInside;
         private int weightInside;
+        private object locker = new object();
+        public int elevatorIndex;
 
         internal ElevatorState state;
 
-        public Elevator(int passengerCapacity, int weightCapacity)
+        public Elevator(int passengerCapacity, int weightCapacity, int elevatorIndex)
         {
             this.passengerCapacity = passengerCapacity;
             this.weightCapacity = weightCapacity;
+            passengerInside = new List<Passenger>();
             state = ElevatorState.Waiting;
-            CurrentFloorIndex = 0;
+            CurrentFloorIndex = 1;
+            floorsToVisit = new List<int>();
+
+            this.elevatorIndex = elevatorIndex;
         }
 
-        public bool IsFull => floorsToVisit.Count == passengerCapacity;
+        public bool IsEmpty
+        {
+            get
+            {
+                lock (locker)
+                {
+                    return passengerInside.Count == 0;
+                }
+            }
+        }
 
-        public Floor DestinationFloor { get; set; }
+        public bool IsFull
+        {
+            get
+            {
+                lock (locker)
+                {
+                    return passengerInside.Count == passengerCapacity;
+                }
+            }
+        }
+
+        public List<int> DestinationFloorIndexes
+        {
+            get
+            {
+                lock (locker)
+                {
+                    return floorsToVisit;
+                }
+            }
+            set
+            {
+                lock (locker)
+                {
+                    floorsToVisit = value;
+                }
+            }
+        }
 
         public int CurrentFloorIndex { get; set; }
 
-        public bool IsWeightAvaliable(int incomingPassengerWeight) =>
-            weightInside + incomingPassengerWeight <= weightInside;
+        public bool CanUseElevator(int incomingPassengerWeight)
+            => weightInside + incomingPassengerWeight <= weightCapacity && !IsFull;
 
+        public void EnterInElevator(Passenger passenger)
+        {
+            lock (locker)
+            {
+                passengerInside.Add(passenger);
+                weightInside += passenger.Weight;
+            }
+        }
 
+        public void ExitFromElevator(Passenger passenger)
+        {
+            lock (locker)
+            {
+                passengerInside.Remove(passenger);
+                weightInside -= passenger.Weight;
+            }
+        }
+
+        internal List<Passenger> GetPeopleInsideList()
+        {
+            lock (locker)
+            {
+                return passengerInside;
+            }
+        }
     }
 }
