@@ -29,8 +29,6 @@ namespace ElevatorSimulator.Concrete.Managers
                     floors[passenger.CurrentFloorIndex].GoingUpPassengerQueue.Add(passenger);
                 }
             }
-
-            Console.WriteLine("Passenger {0} added to queue!", passenger.passengerIndex);
         }
 
         private void RemoveFromQueue(Passenger passenger)
@@ -46,8 +44,6 @@ namespace ElevatorSimulator.Concrete.Managers
                     floors[passenger.CurrentFloorIndex].GoingUpPassengerQueue.Remove(passenger);
                 }
             }
-
-            Console.WriteLine("Passenger {0} removed from queue!", passenger.passengerIndex);
         }
 
         public void WorkWithQueue(Passenger passenger)
@@ -80,8 +76,12 @@ namespace ElevatorSimulator.Concrete.Managers
                         allPassengers.Add(floor.GoingDownPassengerQueue.OrderBy(x => x.passengerIndex).First());
                     }
                 }
-
-                return allPassengers.Count > 0 ? allPassengers.OrderBy(x => x.passengerIndex).First(): null;
+                Passenger passenger = allPassengers.Count > 0 ? allPassengers.OrderBy(x => x.passengerIndex).First() : null;
+                if (passenger != null)
+                {
+                    WorkWithQueue(passenger);
+                }
+                return passenger;
             }
         }
 

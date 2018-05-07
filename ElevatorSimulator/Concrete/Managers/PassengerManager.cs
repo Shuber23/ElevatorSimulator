@@ -28,7 +28,7 @@ namespace ElevatorSimulator.Concrete.Managers
         {
             Console.WriteLine("Passenger {0} created, appears om floor {1}, want to {2}, has weight {3} kg!", passenger.passengerIndex, passenger.CurrentFloorIndex, passenger.DestinationFloorIndex, passenger.Weight);
             UpdatePassengerDirection(passenger);
-            OnPassengerCalledElevator(new PassengerEventArgs(passenger));
+            GlobalEvents.OnPassengerCalledElevator(new PassengerEventArgs(passenger));
         }
 
         private void UpdatePassengerDirection(Passenger passenger)

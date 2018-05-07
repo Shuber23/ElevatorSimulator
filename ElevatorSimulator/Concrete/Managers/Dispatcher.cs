@@ -17,8 +17,6 @@ namespace ElevatorSimulator.Concrete.Managers
         public Manager QueueManager { get; set; }
         public Manager ElevatorManager { get; set; }
         public Manager PassengerManager { get; set; }
-        
-        private Timer floorChecker;
 
         private readonly object locker = new object();
 
@@ -44,7 +42,6 @@ namespace ElevatorSimulator.Concrete.Managers
 
         public void PassengerEnteredElevatorEventHandler(object sender, PassengerEventArgs e)
         {
-            Console.WriteLine("Passenger {0} entered the elevator!", e.PassengerWhoRisedAnEvent.passengerIndex);
             ThreadPool.QueueUserWorkItem(delegate { ((IQueue)QueueManager).WorkWithQueue(e.PassengerWhoRisedAnEvent); });
         }
 

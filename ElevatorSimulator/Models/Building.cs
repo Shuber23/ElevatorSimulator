@@ -18,34 +18,21 @@ namespace ElevatorSimulator.Models
         internal List<Elevator> Elevators => elevators;
         internal List<Floor> Floors => floors;
 
-        public Building(int elevatorCount, int floorCount)
+        private static Building instance;
+
+        private Building()
         {
             elevators = new List<Elevator>();
             floors = new List<Floor>();
+        }
 
-
-            Manager passengerManager = new PassengerManager(dispatcher, new PassengerGenerator());
-            Manager elevatorManager = new ElevatorManager(dispatcher, elevators);
-            Manager queueManager = new QueueManager(dispatcher, floors);
-
-            dispatcher.PassengerManager = passengerManager;
-            dispatcher.ElevatorManager = elevatorManager;
-            dispatcher.QueueManager = queueManager;
-
-            passengerManager.PassengerCalledElevator += dispatcher.PassengerCalledElevatorEventHandler;
-            elevatorManager.PassengerEnteredElevator += dispatcher.PassengerEnteredElevatorEventHandler;
-            elevatorManager.PassengerReleasedElevator += dispatcher.PassengerReleasedElevatorEventHandler;
-
-            int i = 0;
-            while (i < 10)
+        internal static Building GetInstance()
+        {
+            if (instance == null)
             {
-                passengerManager.Create();
-                i++;
-                System.Threading.Thread.Sleep(100);
+                instance = new Building();
             }
-
-            System.Threading.Thread.Sleep(600000);
-            Console.ReadLine();
+            return instance;
         }
 
         internal void CreateFloors(int floorCount)

@@ -11,7 +11,15 @@ namespace ElevatorSimulator
     {
         static void Main(string[] args)
         {
-            Building building = new Building(3, 4);
+            BuildingInitializator buildingInitializator = new BuildingInitializator();
+            ManagerInitializator managerInitializator = new ManagerInitializator();
+            PassengerCreator passengerCreator = new PassengerCreator();
+
+            Initializator initializator = new Initializator(buildingInitializator, managerInitializator, passengerCreator);
+
+            initializator.Initialize();
+
+            System.Threading.Thread.Sleep(600000);
 
         }
     }
