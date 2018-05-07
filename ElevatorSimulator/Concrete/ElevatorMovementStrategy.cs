@@ -14,6 +14,7 @@ namespace ElevatorSimulator.Concrete
     {
         private object locker = new object();
         private IDispatcher dispatcher;
+        private FileLogger logger = new FileLogger();
 
         public ElevatorMovementStrategy(IDispatcher dispatcher)
         {
@@ -22,7 +23,7 @@ namespace ElevatorSimulator.Concrete
 
         public void ElevatorMovementAlgorhitm(Elevator elevator, Passenger passenger)
         {
-            Console.WriteLine("Elevator number {0} founded!", elevator.elevatorIndex);
+            logger.Write("Elevator number " + elevator.elevatorIndex + " founded!", elevator.elevatorIndex);
             AddDestinationFloorIndexesList(elevator, passenger.CurrentFloorIndex);
             UpdateElevatorDirection(elevator);
             TryMove(elevator);
@@ -30,7 +31,8 @@ namespace ElevatorSimulator.Concrete
             RemoveDestinationFloorIndexesList(elevator, passenger.CurrentFloorIndex);
             TryMove(elevator);
             UpdateElevatorDirection(elevator);
-            Console.WriteLine("Elevator {0} end work! Status: {1}", elevator.elevatorIndex, elevator.state);
+            logger.Write("Elevator" + elevator.elevatorIndex + " end work! Status: " + elevator.state,
+                elevator.elevatorIndex);
         }
 
         private void TryEnterElevator(Elevator elevator, Passenger passenger)
@@ -39,14 +41,16 @@ namespace ElevatorSimulator.Concrete
             {
                 if (!elevator.CanUseElevator(passenger.Weight))
                 {
-                    Console.WriteLine("Elevator {0} is full for passenger {1}!", elevator.elevatorIndex, passenger.passengerIndex);
+                    logger.Write(
+                        "Elevator " + elevator.elevatorIndex + " is full for passenger " + passenger.passengerIndex,
+                        elevator.elevatorIndex);
                     return;
                 }
 
                 elevator.EnterInElevator(passenger);
                 RemoveDestinationFloorIndexesList(elevator, passenger.CurrentFloorIndex);
                 AddDestinationFloorIndexesList(elevator, passenger.DestinationFloorIndex);
-                Console.WriteLine("Passenger {0} entered elevator {1}!", passenger.passengerIndex, elevator.elevatorIndex);
+                logger.Write("Passenger "+ passenger.passengerIndex+ " entered elevator" + elevator.elevatorIndex, elevator.elevatorIndex);
                 UpdateElevatorDirection(elevator);
                 GlobalEvents.OnPassengerEnteredElevator(new PassengerEventArgs(passenger));
                 Console.WriteLine("Passenger {0} removed from queue!", passenger.passengerIndex);
@@ -59,7 +63,7 @@ namespace ElevatorSimulator.Concrete
             {
                 elevator.ExitFromElevator(passenger);
                 RemoveDestinationFloorIndexesList(elevator, passenger.DestinationFloorIndex);
-                Console.WriteLine("Passenger {0} released elevator {1}!", passenger.passengerIndex, elevator.elevatorIndex);
+                logger.Write("Passenger " + passenger.passengerIndex + " released elevator" + elevator.elevatorIndex, elevator.elevatorIndex);
                 GlobalEvents.OnPassengerReleasedElevator(new PassengerEventArgs(passenger));
                 UpdateElevatorDirection(elevator);
             }
@@ -82,7 +86,7 @@ namespace ElevatorSimulator.Concrete
                 elevator.state = States.ElevatorState.GoingDown;
             }
             GlobalEvents.OnElevatorUpdatedDirection(new ElevatorEventArgs(elevator));
-            Console.WriteLine("Elevator {0} direction updated!", elevator.elevatorIndex);
+            logger.Write("Elevator " + elevator.elevatorIndex + " direction updated!", elevator.elevatorIndex);
         }
 
         private void ReleaseAllArrivedPassengerIfNeeded(Elevator elevator)
@@ -105,7 +109,7 @@ namespace ElevatorSimulator.Concrete
         private void TryMove(Elevator elevator)
         {
             int destinationIndex;
-            Console.WriteLine("Elevator {0} began move!", elevator.elevatorIndex);
+            logger.Write("Elevator " + elevator.elevatorIndex + " began move!", elevator.elevatorIndex);
             if (elevator.state == States.ElevatorState.GoingUp)
             {
                 lock (locker)
@@ -138,8 +142,8 @@ namespace ElevatorSimulator.Concrete
         {
             lock (locker)
             {
-                Console.WriteLine("Elevator {0} on floor {1}!", elevator.elevatorIndex,
-                    elevator.CurrentFloorIndex);
+                logger.Write("Elevator " + elevator.elevatorIndex + " on floor" + elevator.CurrentFloorIndex,
+                    elevator.elevatorIndex);
                 Thread.Sleep(5000);
                 ReleaseAllArrivedPassengerIfNeeded(elevator);
                 EnterWaitingPassengerInFloorIfPossible(elevator);

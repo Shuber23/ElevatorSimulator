@@ -19,7 +19,7 @@ namespace ElevatorSimulator.Concrete.Managers
         private Timer timer;
         private object locker = new object();
 
-        private IElevatorMovementStrategyStrategy strategy;
+        private readonly IElevatorMovementStrategyStrategy strategy;
 
         public ElevatorManager(IDispatcher dispatcher, IElevatorMovementStrategyStrategy strategy, List<Elevator> elevators) : base(dispatcher)
         {

@@ -58,6 +58,7 @@
     <Compile Include="Events\ElevatorEventArgs.cs" />
     <Compile Include="Events\GlobalEvents.cs" />
     <Compile Include="Events\PassengerEventArgs.cs" />
+    <Compile Include="FileLogger.cs" />
     <Compile Include="Initializator.cs" />
     <Compile Include="ManagerInitializator.cs" />
     <Compile Include="Models\Building.cs" />
