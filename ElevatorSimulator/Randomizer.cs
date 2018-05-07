@@ -11,6 +11,7 @@ namespace ElevatorSimulator
         public static int currentFloor;
         public static int destinationFloor;
         public static int weight;
+        public static int passengerIndex;
 
         public static void Random()
         {
@@ -22,6 +23,7 @@ namespace ElevatorSimulator
             destinationFloorIndexes.Remove(currentFloor);
             destinationFloor = destinationFloorIndexes[new Random().Next(0, destinationFloorIndexes.Count)];
             weight = random.Next(40, 131);
+            passengerIndex++;
         }
 
        

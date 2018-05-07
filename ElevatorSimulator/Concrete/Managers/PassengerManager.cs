@@ -10,18 +10,25 @@ using ElevatorSimulator.Models;
 
 namespace ElevatorSimulator.Concrete.Managers
 {
-    internal class PassengerManager: Manager, ICallElevator
+    internal class PassengerManager: Manager
     {
-        public PassengerManager(IDispatcher dispatcher) : base(dispatcher)
+        private IGenerator passengerGenerator;
+        public PassengerManager(IDispatcher dispatcher, IGenerator generator) : base(dispatcher)
         {
-            
+            passengerGenerator = generator;
         }
-        public void CallElevator(Passenger passenger)
+
+        public override void Create()
+        {
+            Passenger passenger = passengerGenerator.Generate();
+            CallElevator(passenger);
+        }
+
+        private void CallElevator(Passenger passenger)
         {
             Console.WriteLine("Passenger {0} created, appears om floor {1}, want to {2}, has weight {3} kg!", passenger.passengerIndex, passenger.CurrentFloorIndex, passenger.DestinationFloorIndex, passenger.Weight);
             UpdatePassengerDirection(passenger);
             OnPassengerCalledElevator(new PassengerEventArgs(passenger));
-            //dispatcher.OnPassengerCalledElevator(new PassengerEventArgs(passenger));
         }
 
         private void UpdatePassengerDirection(Passenger passenger)
@@ -35,19 +42,6 @@ namespace ElevatorSimulator.Concrete.Managers
                 passenger.Direction = States.Direction.Down;
             }
             Console.WriteLine("Passenger {0} direction updated!", passenger.passengerIndex);
-        }
-
-        public override object GetItem(States.Direction direction)
-        {
-            return new Passenger(80, States.Direction.None, 0, 3, 0);
-        }
-
-        private Elevator FindAvailableElevator(States.Direction direction) =>
-            dispatcher.GetItem(this, direction) as Elevator;
-
-        private void EnterTheElevator()
-        {
-            
         }
     }
 }

@@ -14,14 +14,12 @@ namespace ElevatorSimulator.Abstract
         Manager ElevatorManager { get; set; }
         Manager QueueManager { get; set; }
 
-        object GetItem(Manager manager, States.Direction direction);
-
         void PassengerCalledElevatorEventHandler(object sender, PassengerEventArgs e);
 
         void PassengerEnteredElevatorEventHandler(object sender, PassengerEventArgs e);
 
-        void ElevatorArrivedEventHandler(object sender, ElevatorEventArgs e);
+        void PassengerReleasedElevatorEventHandler(object sender, PassengerEventArgs e);
 
-        void CallElevator(int passengerIndex);
+        void ElevatorArrivedEventHandler(object sender, ElevatorEventArgs e);
     }
 }

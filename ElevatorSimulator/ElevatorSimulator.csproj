@@ -42,21 +42,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Abstract\Button.cs" />
-    <Compile Include="Abstract\ICallElevator.cs" />
     <Compile Include="Abstract\IDispatcher.cs" />
+    <Compile Include="Abstract\IGenerator.cs" />
     <Compile Include="Abstract\IQueue.cs" />
     <Compile Include="Abstract\Manager.cs" />
     <Compile Include="Abstract\IMovable.cs" />
-    <Compile Include="Abstract\IView.cs" />
-    <Compile Include="Concrete\Buttons\DownCallButton.cs" />
-    <Compile Include="Concrete\Buttons\UpCallButton.cs" />
     <Compile Include="Concrete\Managers\Dispatcher.cs" />
     <Compile Include="Concrete\Managers\ElevatorManager.cs" />
     <Compile Include="Concrete\Managers\PassengerManager.cs" />
     <Compile Include="Concrete\Managers\QueueManager.cs" />
+    <Compile Include="Concrete\PassengerGenerator.cs" />
     <Compile Include="Events\ElevatorEventArgs.cs" />
     <Compile Include="Events\PassengerEventArgs.cs" />
+    <Compile Include="ManagerInitializator.cs" />
     <Compile Include="Models\Building.cs" />
     <Compile Include="Models\Elevator.cs" />
     <Compile Include="Models\Floor.cs" />

@@ -19,6 +19,7 @@ namespace ElevatorSimulator.Concrete.Managers
         {
             lock (locker)
             {
+
                 if (passenger.Direction == States.Direction.Down)
                 {
                     floors[passenger.CurrentFloorIndex].GoingDownPassengerQueue.Add(passenger);
@@ -28,7 +29,8 @@ namespace ElevatorSimulator.Concrete.Managers
                     floors[passenger.CurrentFloorIndex].GoingUpPassengerQueue.Add(passenger);
                 }
             }
-            Console.WriteLine("Passenger added to queue!");
+
+            Console.WriteLine("Passenger {0} added to queue!", passenger.passengerIndex);
         }
 
         private void RemoveFromQueue(Passenger passenger)
@@ -44,7 +46,8 @@ namespace ElevatorSimulator.Concrete.Managers
                     floors[passenger.CurrentFloorIndex].GoingUpPassengerQueue.Remove(passenger);
                 }
             }
-            Console.WriteLine("Passenger removed from queue!");
+
+            Console.WriteLine("Passenger {0} removed from queue!", passenger.passengerIndex);
         }
 
         public void WorkWithQueue(Passenger passenger)
@@ -60,7 +63,48 @@ namespace ElevatorSimulator.Concrete.Managers
             }
         }
 
-        public override object GetItem(States.Direction direction)
+        public Passenger GetWaitingPassenger()
+        {
+            List<Passenger> allPassengers = new List<Passenger>();
+            lock (locker)
+            {
+                foreach (var floor in floors)
+                {
+                    if (floor.GoingUpPassengerQueue.Any())
+                    {
+                        allPassengers.Add(floor.GoingUpPassengerQueue.OrderBy(x => x.passengerIndex).First());
+                    }
+
+                    if (floor.GoingDownPassengerQueue.Any())
+                    {
+                        allPassengers.Add(floor.GoingDownPassengerQueue.OrderBy(x => x.passengerIndex).First());
+                    }
+                }
+
+                return allPassengers.Count > 0 ? allPassengers.OrderBy(x => x.passengerIndex).First(): null;
+            }
+        }
+
+        public List<Passenger> GetAllPassengersOnFloorByDirection(int floorIndex, States.Direction direction)
+        {
+            lock (locker)
+            {
+                List<Passenger> allPassengers = new List<Passenger>();
+                switch (direction)
+                {
+                    case States.Direction.Up:
+                        allPassengers = floors[floorIndex].GoingUpPassengerQueue;
+                        return allPassengers;
+                    case States.Direction.Down:
+                        allPassengers = floors[floorIndex].GoingDownPassengerQueue;
+                        return allPassengers;
+                    default:
+                        throw new ArgumentOutOfRangeException("Invalid direction!");
+                }
+            }
+        }
+
+        public override void Create()
         {
             throw new NotImplementedException();
         }

@@ -7,8 +7,8 @@ using ElevatorSimulator.Models;
 
 namespace ElevatorSimulator.Abstract
 {
-    public interface ICallElevator
+    interface IGenerator
     {
-        void CallElevator(Passenger passenger);
+        Passenger Generate();
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using ElevatorSimulator.Abstract;
 using ElevatorSimulator.Events;
@@ -11,84 +12,44 @@ using ElevatorSimulator.Models;
 
 namespace ElevatorSimulator.Concrete.Managers
 {
-    internal class ElevatorManager: Manager, IMovable
+    internal class ElevatorManager: Manager
     {
         private readonly List<Elevator> elevators;
         private object locker = new object();
 
-        public ElevatorManager(IDispatcher dispatcher, List<Elevator> elevators) : base(dispatcher) => this.elevators = elevators;
-
-        public void SendElevatorForPassenger(Passenger passenger)
+        public ElevatorManager(IDispatcher dispatcher, List<Elevator> elevators) : base(dispatcher)
         {
-            Elevator elevator = FindAvaliableElevator(passenger.Direction);
-            Console.WriteLine("Elevator number {0} founded!", elevator.elevatorIndex);
-            lock (locker)
-            {
-                elevator.DestinationFloorIndexes.Add(passenger.CurrentFloorIndex);
-            }
+            this.elevators = elevators;
+            TimerCallback timerCallback = CheckingIfPassengerNeedsElevatorCallBack;
+            Timer timer = new Timer(timerCallback, null, 0, 1000);
+        }
 
-            //Print(elevator.DestinationFloorIndexes, elevator.elevatorIndex);
+        public void SendElevator(Elevator elevator, Passenger passenger)
+        {
+            Console.WriteLine("Elevator number {0} founded!", elevator.elevatorIndex);
+            AddDestinationFloorIndexesList(elevator, passenger.CurrentFloorIndex);
             UpdateElevatorDirection(elevator);
             TryMove(elevator);
             TryEnterElevator(elevator, passenger);
-            OnPassengerEnteredElevator(new PassengerEventArgs(passenger));
-            lock (locker)
-            {
-                elevator.DestinationFloorIndexes.Remove(passenger.CurrentFloorIndex);
-            }
-            Print(elevator.DestinationFloorIndexes, elevator.elevatorIndex);
+            RemoveDestinationFloorIndexesList(elevator, passenger.CurrentFloorIndex);
             TryMove(elevator);
-            //ExitElevator(elevator, passenger);
-            //elevator.DestinationFloorIndexes.Add(0);
-            Print(elevator.DestinationFloorIndexes, elevator.elevatorIndex);
-            //TryMove(elevator);
-            Console.WriteLine("Elevator {0} end work!", elevator.elevatorIndex);
-            Print(elevator.DestinationFloorIndexes, elevator.elevatorIndex);
+            UpdateElevatorDirection(elevator);
+            Console.WriteLine("Elevator {0} end work! Status: {1}", elevator.elevatorIndex, elevator.state);
         }
 
         private List<Elevator> GetElevatorsByStatus(States.ElevatorState state)
         {
-            //lock (locker)
-            //{
-             return elevators.FindAll(x => x.state == state);
-            //}
+            return elevators.FindAll(x => x.state == state);
         }
 
-        private List<Elevator> GetElevatorsByCurrentFloorPosition(int floorIndex) =>
-            elevators.FindAll(x => x.CurrentFloorIndex == floorIndex);
-
-        public override object GetItem(States.Direction passengerDirection) =>
-            FindAvaliableElevator(passengerDirection);
-
-        private Elevator FindAvaliableElevator(States.Direction passengerDirection)
+        private void CheckingIfPassengerNeedsElevatorCallBack(object obj)
         {
-            while (true)
+            Passenger waitingPassenger = ((IQueue)dispatcher.QueueManager).GetWaitingPassenger();
+            List<Elevator> elevatorsList = GetElevatorsByStatus(States.ElevatorState.Waiting);
+            if (elevatorsList.Any() && waitingPassenger != null)
             {
-                var elevatorWaitingList = GetElevatorsByStatus(States.ElevatorState.Waiting);
-                if (elevatorWaitingList.Count > 0)
-                {
-                    return elevatorWaitingList.First();
-                }
-
-                switch (passengerDirection)
-                {
-                    case States.Direction.Up:
-                        var elevatorByGoingUpList = GetElevatorsByStatus(States.ElevatorState.GoingUp);
-                        if (elevatorByGoingUpList.Count > 0)
-                        {
-                            return elevatorByGoingUpList.First();
-                        }
-                        break;
-                    case States.Direction.Down:
-                        var elevatorByGoingDownUpList = GetElevatorsByStatus(States.ElevatorState.GoingDown);
-                        if (elevatorByGoingDownUpList.Count > 0)
-                        {
-                            return elevatorByGoingDownUpList.First();
-                        }
-                        break;
-                 }
+                SendElevator(elevatorsList.First(), waitingPassenger);
             }
-
         }
 
         private void TryEnterElevator(Elevator elevator, Passenger passenger)
@@ -98,18 +59,15 @@ namespace ElevatorSimulator.Concrete.Managers
                 if (!elevator.CanUseElevator(passenger.Weight))
                 {
                     Console.WriteLine("Elevator {0} is full for passenger {1}!", elevator.elevatorIndex, passenger.passengerIndex);
-                    elevator.DestinationFloorIndexes.Remove(passenger.CurrentFloorIndex);
-                    OnPassengerCalledElevator(new PassengerEventArgs(passenger));
                     return;
                 }
 
                 elevator.EnterInElevator(passenger);
-                elevator.DestinationFloorIndexes.Remove(passenger.CurrentFloorIndex);
-                elevator.DestinationFloorIndexes.Add(passenger.DestinationFloorIndex);
-                Print(elevator.DestinationFloorIndexes, elevator.elevatorIndex);
+                RemoveDestinationFloorIndexesList(elevator, passenger.CurrentFloorIndex);
+                AddDestinationFloorIndexesList(elevator, passenger.DestinationFloorIndex);
                 Console.WriteLine("Passenger {0} entered elevator!", passenger.passengerIndex);
                 UpdateElevatorDirection(elevator);
-                System.Threading.Thread.Sleep(1000);
+                OnPassengerEnteredElevator(new PassengerEventArgs(passenger));
             }
         }
 
@@ -118,21 +76,10 @@ namespace ElevatorSimulator.Concrete.Managers
             lock (locker)
             {
                 elevator.ExitFromElevator(passenger);
-                elevator.DestinationFloorIndexes.Remove(passenger.DestinationFloorIndex);
-                Print(elevator.DestinationFloorIndexes, elevator.elevatorIndex);
-                Console.WriteLine("Passenger {0} exited elevator!", passenger.passengerIndex);
+                RemoveDestinationFloorIndexesList(elevator, passenger.DestinationFloorIndex);
+                Console.WriteLine("Passenger {0} released elevator!", passenger.passengerIndex);
                 UpdateElevatorDirection(elevator);
             }
-        }
-
-        private int GetClosestDestinationPointIndex(Elevator elevator)
-        {
-            var indexes = elevator.DestinationFloorIndexes;
-            for (int i = 0; i < indexes.Count; i++)
-            {
-                indexes[i] = Math.Abs(indexes[i] - elevator.CurrentFloorIndex);
-            }
-            return indexes.Min();
         }
 
         private void UpdateElevatorDirection(Elevator elevator)
@@ -140,6 +87,7 @@ namespace ElevatorSimulator.Concrete.Managers
             if (elevator.DestinationFloorIndexes.Count <= 0)
             {
                 elevator.state = States.ElevatorState.Waiting;
+                OnElevatorUpdatedDirection(new ElevatorEventArgs(elevator));
                 return;
             }
             if (elevator.CurrentFloorIndex < elevator.DestinationFloorIndexes.First())
@@ -150,47 +98,42 @@ namespace ElevatorSimulator.Concrete.Managers
             {
                 elevator.state = States.ElevatorState.GoingDown;
             }
+            OnElevatorUpdatedDirection(new ElevatorEventArgs(elevator));
             Console.WriteLine("Elevator {0} direction updated!", elevator.elevatorIndex);
         }
 
         private void ReleaseAllArrivedPassengerIfNeeded(Elevator elevator)
         {
-            lock (locker)
+            List<Passenger> releasedPassenger = new List<Passenger>();
+            foreach (var passenger in elevator.GetPeopleInsideList())
             {
-                List<Passenger> releasedPassenger = new List<Passenger>();
-                foreach (var passenger in elevator.GetPeopleInsideList())
+                if (passenger.DestinationFloorIndex == elevator.CurrentFloorIndex)
                 {
-                    if (passenger.DestinationFloorIndex == elevator.CurrentFloorIndex)
-                    {
-                        releasedPassenger.Add(passenger);
-                    }
-                }
-                foreach (var passenger in releasedPassenger)
-                {
-                    ExitElevator(elevator, passenger);
+                    releasedPassenger.Add(passenger);
                 }
             }
-            System.Threading.Thread.Sleep(1000);
+            foreach (var passenger in releasedPassenger)
+            {
+                ExitElevator(elevator, passenger);
+                OnPassengerReleasedElevator(new PassengerEventArgs(passenger));
+            }
         }
 
         private void TryMove(Elevator elevator)
         {
-            bool isElevatorEmpty = false;
+            int destinationIndex;
             Console.WriteLine("Elevator {0} began move!", elevator.elevatorIndex);
             if (elevator.state == States.ElevatorState.GoingUp)
             {
                 lock (locker)
                 {
+                    destinationIndex = elevator.DestinationFloorIndexes.First();
+                }
 
-                    while (!isElevatorEmpty && elevator.CurrentFloorIndex < elevator.DestinationFloorIndexes.First())
-                    {
-                        Console.WriteLine("Elevator {0} on floor {1}!", elevator.elevatorIndex,
-                            elevator.CurrentFloorIndex);
-                        System.Threading.Thread.Sleep(5000);
-                        elevator.CurrentFloorIndex++;
-                        ReleaseAllArrivedPassengerIfNeeded(elevator);
-                        isElevatorEmpty = elevator.IsEmpty;
-                    }
+                while (elevator.CurrentFloorIndex < destinationIndex)
+                {
+                    elevator.CurrentFloorIndex++;
+                    Move(elevator);
                 }
                 return;
             }
@@ -198,31 +141,72 @@ namespace ElevatorSimulator.Concrete.Managers
             {
                 lock (locker)
                 {
-                    while (!isElevatorEmpty && elevator.CurrentFloorIndex > elevator.DestinationFloorIndexes.First())
-                    {
-                        Console.WriteLine("Elevator {0} on floor {1}!", elevator.elevatorIndex,
-                            elevator.CurrentFloorIndex);
-                        System.Threading.Thread.Sleep(3000);
-                        elevator.CurrentFloorIndex--;
-                        ReleaseAllArrivedPassengerIfNeeded(elevator);
-                        isElevatorEmpty = elevator.IsEmpty;
-                    }
+                    destinationIndex = elevator.DestinationFloorIndexes.First();
+                }
+                while (elevator.CurrentFloorIndex > destinationIndex)
+                {
+                    elevator.CurrentFloorIndex--;
+                    Move(elevator);
                 }
             }
         }
 
-        private void Print(List<int> list, int elevatorIndex)
+        private void Move(Elevator elevator)
         {
             lock (locker)
             {
-                Console.Write("Elevator " + elevatorIndex + ":");
-                foreach (var index in list)
-                {
-                    Console.Write("   " + index + " ");
-                }
-                Console.WriteLine();
+                Console.WriteLine("Elevator {0} on floor {1}!", elevator.elevatorIndex,
+                    elevator.CurrentFloorIndex);
+                Console.WriteLine("People inside in elevator {0}: {1}", elevator.elevatorIndex,
+                    elevator.GetPeopleInsideList().Count);
+                Thread.Sleep(5000);
+                ReleaseAllArrivedPassengerIfNeeded(elevator);
+                EnterWaitingPassengerInFloorIfPossible(elevator);
             }
         }
 
+        private void EnterWaitingPassengerInFloorIfPossible(Elevator elevator)
+        {
+            List<Passenger> waitingPassengers = new List<Passenger>();
+            if (elevator.state == States.ElevatorState.GoingUp)
+            {
+                waitingPassengers =
+                    GetAllPassengersOnCurrentFloorByDirection(elevator.CurrentFloorIndex, States.Direction.Up).ToList();
+                Console.WriteLine("Waiting passenger count on floor {0}: {1}", elevator.CurrentFloorIndex, waitingPassengers.Count);
+            }
+            if (elevator.state == States.ElevatorState.GoingDown)
+            {
+                waitingPassengers =
+                    GetAllPassengersOnCurrentFloorByDirection(elevator.CurrentFloorIndex, States.Direction.Down).ToList();
+                Console.WriteLine("Waiting passenger count on floor {0}: {1}", elevator.CurrentFloorIndex, waitingPassengers.Count);
+            }
+            foreach (var passenger in waitingPassengers)
+            {
+                TryEnterElevator(elevator, passenger);
+            }
+        }
+
+        private List<Passenger> GetAllPassengersOnCurrentFloorByDirection(int floorIndex, States.Direction direction)
+        {
+            lock (locker)
+            {
+                return ((IQueue)dispatcher.QueueManager).GetAllPassengersOnFloorByDirection(floorIndex, direction);
+            }
+        }
+
+        private void AddDestinationFloorIndexesList(Elevator elevator, int floorIndex)
+        {
+            elevator.DestinationFloorIndexes.Add(floorIndex);
+        }
+
+        private void RemoveDestinationFloorIndexesList(Elevator elevator, int floorIndex)
+        {
+            elevator.DestinationFloorIndexes.Remove(floorIndex);
+        }
+
+        public override void Create()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

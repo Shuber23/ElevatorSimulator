@@ -9,6 +9,6 @@ namespace ElevatorSimulator.Abstract
 {
     public interface IMovable
     {
-        void SendElevatorForPassenger(Passenger passenger);
+        void SendElevatorForPassenger(Elevator elevator, Passenger passenger);
     }
 }

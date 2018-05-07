@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using ElevatorSimulator.Abstract;
+using ElevatorSimulator.Concrete;
 using ElevatorSimulator.Concrete.Managers;
 
 namespace ElevatorSimulator.Models
@@ -13,24 +15,16 @@ namespace ElevatorSimulator.Models
         private readonly List<Elevator> elevators;
         private readonly List<Floor> floors;
 
+        internal List<Elevator> Elevators => elevators;
+        internal List<Floor> Floors => floors;
+
         public Building(int elevatorCount, int floorCount)
         {
             elevators = new List<Elevator>();
             floors = new List<Floor>();
 
-            for (int floorIndex = 0; floorIndex < floorCount; floorIndex++)
-            {
-                floors.Add(new Floor(floorIndex));
-            }
 
-            for (int elevatorIndex = 0; elevatorIndex < elevatorCount; elevatorIndex++)
-            {
-                elevators.Add(new Elevator(4, 300, elevatorIndex));
-            }
-
-
-            IDispatcher dispatcher = Dispatcher.GetInstance();
-            Manager passengerManager = new PassengerManager(dispatcher);
+            Manager passengerManager = new PassengerManager(dispatcher, new PassengerGenerator());
             Manager elevatorManager = new ElevatorManager(dispatcher, elevators);
             Manager queueManager = new QueueManager(dispatcher, floors);
 
@@ -39,20 +33,35 @@ namespace ElevatorSimulator.Models
             dispatcher.QueueManager = queueManager;
 
             passengerManager.PassengerCalledElevator += dispatcher.PassengerCalledElevatorEventHandler;
+            elevatorManager.PassengerEnteredElevator += dispatcher.PassengerEnteredElevatorEventHandler;
+            elevatorManager.PassengerReleasedElevator += dispatcher.PassengerReleasedElevatorEventHandler;
 
             int i = 0;
-            while (i < 100)
+            while (i < 10)
             {
-                dispatcher.CallElevator(i);
+                passengerManager.Create();
                 i++;
-                System.Threading.Thread.Sleep(5000);
+                System.Threading.Thread.Sleep(100);
             }
-            System.Threading.Thread.Sleep(120000);
+
+            System.Threading.Thread.Sleep(600000);
+            Console.ReadLine();
         }
 
-        //private void PassengerManagerOnPassengerCalledElevator(object sender, EventArgs eventArgs)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        internal void CreateFloors(int floorCount)
+        {
+            for (int floorIndex = 0; floorIndex < floorCount; floorIndex++)
+            {
+                floors.Add(new Floor(floorIndex));
+            }
+        }
+
+        internal void CreateElevators(int elevatorCount)
+        {
+            for (int elevatorIndex = 0; elevatorIndex < elevatorCount; elevatorIndex++)
+            {
+                elevators.Add(new Elevator(4, 300, elevatorIndex));
+            }
+        }
     }
 }

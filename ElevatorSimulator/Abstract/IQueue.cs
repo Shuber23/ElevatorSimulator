@@ -10,5 +10,7 @@ namespace ElevatorSimulator.Abstract
     interface IQueue
     {
         void WorkWithQueue(Passenger passenger);
+        Passenger GetWaitingPassenger();
+        List<Passenger> GetAllPassengersOnFloorByDirection(int floorIndex, States.Direction direction);
     }
 }

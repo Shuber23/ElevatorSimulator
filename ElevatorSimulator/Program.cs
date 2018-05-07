@@ -12,6 +12,7 @@ namespace ElevatorSimulator
         static void Main(string[] args)
         {
             Building building = new Building(3, 4);
+
         }
     }
 }

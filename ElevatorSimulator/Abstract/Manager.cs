@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,9 +17,21 @@ namespace ElevatorSimulator.Abstract
     {
         protected readonly IDispatcher dispatcher;
 
+
         public event ElevatorEventHandler ElevatorArrived;
+        public event ElevatorEventHandler ElevatorUpdatedDirection;
         public event PassengerEventHandler PassengerCalledElevator;
         public event PassengerEventHandler PassengerEnteredElevator;
+        public event PassengerEventHandler PassengerReleasedElevator;
+
+        protected Manager(IDispatcher dispatcher) => this.dispatcher = dispatcher;
+
+        public abstract void Create();
+
+        protected void OnElevatorUpdatedDirection(ElevatorEventArgs e)
+        {
+            ElevatorUpdatedDirection?.Invoke(this, e);
+        }
 
         protected void OnElevatorArrived(ElevatorEventArgs e)
         {
@@ -35,8 +48,9 @@ namespace ElevatorSimulator.Abstract
             PassengerEnteredElevator?.Invoke(this, e);
         }
 
-        protected Manager(IDispatcher dispatcher) => this.dispatcher = dispatcher;
-
-        public abstract object GetItem(States.Direction direction);
+        protected void OnPassengerReleasedElevator(PassengerEventArgs e)
+        {
+            PassengerReleasedElevator?.Invoke(this, e);
+        }
     }
 }
