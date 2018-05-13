@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,16 +11,16 @@ namespace ElevatorSimulator.Events
     public class PassengerEventArgs: EventArgs
     {
         public Passenger PassengerWhoRisedAnEvent;
-        public List<Passenger> PassengersWhichRisedAnEventList;
+        public ConcurrentBag<Passenger> PassengersWhichRisedAnEventConcurrentBag;
 
         public PassengerEventArgs(Passenger passengerWhoRisedAnEvent)
         {
             PassengerWhoRisedAnEvent = passengerWhoRisedAnEvent;
         }
 
-        public PassengerEventArgs(List<Passenger> passengersWhichRisedAnEventList)
+        public PassengerEventArgs(ConcurrentBag<Passenger> passengersWhichRisedAnEventConcurrentBag)
         {
-            PassengersWhichRisedAnEventList = passengersWhichRisedAnEventList;
+            PassengersWhichRisedAnEventConcurrentBag = passengersWhichRisedAnEventConcurrentBag;
         }
     }
 }

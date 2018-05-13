@@ -36,18 +36,18 @@ namespace ElevatorSimulator.Concrete.Managers
 
         public void PassengerCalledElevatorEventHandler(object sender, PassengerEventArgs e)
         {
-            Console.WriteLine("Passenger {0} called elevator!", e.PassengerWhoRisedAnEvent.passengerIndex);
-            ThreadPool.QueueUserWorkItem(delegate { ((IQueue)QueueManager).WorkWithQueue(e.PassengerWhoRisedAnEvent); });
+            //Console.WriteLine("Passenger {0} called elevator!", e.PassengerWhoRisedAnEvent.passengerIndex);
+            ThreadPool.QueueUserWorkItem(delegate { ((IQueue)QueueManager).AddToQueue(e.PassengerWhoRisedAnEvent); });
         }
 
         public void PassengerEnteredElevatorEventHandler(object sender, PassengerEventArgs e)
         {
-            ThreadPool.QueueUserWorkItem(delegate { ((IQueue)QueueManager).WorkWithQueue(e.PassengerWhoRisedAnEvent); });
+            ThreadPool.QueueUserWorkItem(delegate { ((IQueue)QueueManager).RemoveFromQueue(e.PassengerWhoRisedAnEvent); });
         }
 
         public void PassengerReleasedElevatorEventHandler(object sender, PassengerEventArgs e)
         {
-            e.PassengerWhoRisedAnEvent = null;
+
         }
 
         public void ElevatorArrivedEventHandler(object sender, ElevatorEventArgs e)

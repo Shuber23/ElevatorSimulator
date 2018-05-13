@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -26,21 +27,27 @@ namespace ElevatorSimulator.Concrete.Managers
             this.elevators = elevators;
             this.strategy = strategy;
             timerCallback = CheckingIfPassengerNeedsElevatorCallBack;
-            timer = new Timer(timerCallback, null, 0, 1000);
+            timer = new Timer(timerCallback, null, 0, 2000);
         }
 
         private List<Elevator> GetElevatorsByStatus(States.ElevatorState state)
         {
-            return elevators.FindAll(x => x.state == state);
+            lock (locker)
+            {
+                return elevators.FindAll(x => x.state == state);
+            }
         }
 
         private void CheckingIfPassengerNeedsElevatorCallBack(object obj)
         {
-            Passenger waitingPassenger = ((IQueue)dispatcher.QueueManager).GetWaitingPassenger();
             List<Elevator> elevatorsList = GetElevatorsByStatus(States.ElevatorState.Waiting);
-            if (elevatorsList.Any() && waitingPassenger != null)
+            if (elevatorsList.Any())
             {
-                strategy.ElevatorMovementAlgorhitm(elevatorsList.First(), waitingPassenger);
+                Passenger waitingPassenger = ((IQueue)dispatcher.QueueManager).GetWaitingPassenger();
+                if (waitingPassenger != null)
+                {
+                    strategy.ElevatorMovementAlgorhitm(elevatorsList.First(), waitingPassenger);
+                }
             }
         }
 

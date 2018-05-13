@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace ElevatorSimulator.Models
         private readonly int passengerCapacity;
         private readonly int weightCapacity;
 
-        private List<int> floorsToVisit;
+        private ConcurrentBag<int> floorsToVisit;
         private List<Passenger> passengerInside;
         private int weightInside;
         private object locker = new object();
@@ -27,7 +28,7 @@ namespace ElevatorSimulator.Models
             passengerInside = new List<Passenger>();
             state = ElevatorState.Waiting;
             CurrentFloorIndex = 1;
-            floorsToVisit = new List<int>();
+            floorsToVisit = new ConcurrentBag<int>();
 
             this.elevatorIndex = elevatorIndex;
         }
@@ -54,7 +55,7 @@ namespace ElevatorSimulator.Models
             }
         }
 
-        public List<int> DestinationFloorIndexes
+        public ConcurrentBag<int> DestinationFloorIndexes
         {
             get
             {
@@ -63,16 +64,20 @@ namespace ElevatorSimulator.Models
                     return floorsToVisit;
                 }
             }
-            set
-            {
-                lock (locker)
-                {
-                    floorsToVisit = value;
-                }
-            }
         }
 
         public int CurrentFloorIndex { get; set; }
+
+        public int WeightInside
+        {
+            get
+            {
+                lock (locker)
+                {
+                    return weightInside;
+                }
+            }
+        }
 
         public bool CanUseElevator(int incomingPassengerWeight)
             => weightInside + incomingPassengerWeight <= weightCapacity && !IsFull;
@@ -95,7 +100,7 @@ namespace ElevatorSimulator.Models
             }
         }
 
-        internal List<Passenger> GetPeopleInsideList()
+        internal List<Passenger> GetPeopleInside()
         {
             lock (locker)
             {

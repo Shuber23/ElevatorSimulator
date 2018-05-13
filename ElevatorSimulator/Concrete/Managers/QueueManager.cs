@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,11 +16,10 @@ namespace ElevatorSimulator.Concrete.Managers
 
         public QueueManager(IDispatcher dispatcher, List<Floor> floors) : base(dispatcher) => this.floors = floors;
 
-        private void AddToQueue(Passenger passenger)
+        public void AddToQueue(Passenger passenger)
         {
             lock (locker)
             {
-
                 if (passenger.Direction == States.Direction.Down)
                 {
                     floors[passenger.CurrentFloorIndex].GoingDownPassengerQueue.Add(passenger);
@@ -31,37 +31,25 @@ namespace ElevatorSimulator.Concrete.Managers
             }
         }
 
-        private void RemoveFromQueue(Passenger passenger)
+        public void RemoveFromQueue(Passenger passenger)
         {
             lock (locker)
             {
                 if (passenger.Direction == States.Direction.Down)
                 {
-                    floors[passenger.CurrentFloorIndex].GoingDownPassengerQueue.Remove(passenger);
+                    floors[passenger.CurrentFloorIndex].GoingDownPassengerQueue.TryTake(out passenger);
                 }
                 else
                 {
-                    floors[passenger.CurrentFloorIndex].GoingUpPassengerQueue.Remove(passenger);
+                    floors[passenger.CurrentFloorIndex].GoingUpPassengerQueue.TryTake(out passenger);
                 }
             }
-        }
-
-        public void WorkWithQueue(Passenger passenger)
-        {
-            if (floors[passenger.CurrentFloorIndex].GoingUpPassengerQueue.Contains(passenger) ||
-                floors[passenger.CurrentFloorIndex].GoingDownPassengerQueue.Contains(passenger))
-            {
-                RemoveFromQueue(passenger);
-            }
-            else
-            {
-                AddToQueue(passenger);
-            }
+            //Console.WriteLine("Passenger {0} removed from queue", passenger.passengerIndex);
         }
 
         public Passenger GetWaitingPassenger()
         {
-            List<Passenger> allPassengers = new List<Passenger>();
+            ConcurrentBag<Passenger> allPassengers = new ConcurrentBag<Passenger>();
             lock (locker)
             {
                 foreach (var floor in floors)
@@ -79,17 +67,17 @@ namespace ElevatorSimulator.Concrete.Managers
                 Passenger passenger = allPassengers.Count > 0 ? allPassengers.OrderBy(x => x.passengerIndex).First() : null;
                 if (passenger != null)
                 {
-                    WorkWithQueue(passenger);
+                    RemoveFromQueue(passenger);
                 }
                 return passenger;
             }
         }
 
-        public List<Passenger> GetAllPassengersOnFloorByDirection(int floorIndex, States.Direction direction)
+        public ConcurrentBag<Passenger> GetAllPassengersOnFloorByDirection(int floorIndex, States.Direction direction)
         {
             lock (locker)
             {
-                List<Passenger> allPassengers = new List<Passenger>();
+                ConcurrentBag<Passenger> allPassengers = new ConcurrentBag<Passenger>();
                 switch (direction)
                 {
                     case States.Direction.Up:
@@ -102,6 +90,25 @@ namespace ElevatorSimulator.Concrete.Managers
                         throw new ArgumentOutOfRangeException("Invalid direction!");
                 }
             }
+        }
+
+        public List<ConcurrentBag<Passenger>> GetAllPassengers()
+        {
+            List<ConcurrentBag<Passenger>> allPassengers = new List<ConcurrentBag<Passenger>>();
+            for (int i=0;i<floors.Count;i++)
+            {
+                ConcurrentBag<Passenger> passengersGoingUpOnFloor = new ConcurrentBag<Passenger>();
+                ConcurrentBag<Passenger> passengersGoingDownOnFloor = new ConcurrentBag<Passenger>();
+                lock (locker)
+                {
+                    passengersGoingDownOnFloor = floors[i].GoingDownPassengerQueue;
+                    passengersGoingUpOnFloor = floors[i].GoingUpPassengerQueue;
+                }
+                allPassengers.Add(passengersGoingUpOnFloor);
+                allPassengers.Add(passengersGoingDownOnFloor);
+            }
+
+            return allPassengers;
         }
 
         public override void Create()

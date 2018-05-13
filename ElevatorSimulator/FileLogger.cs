@@ -10,13 +10,17 @@ namespace ElevatorSimulator
 {
     class FileLogger
     {
+        private object locker = new object();
         public void Write(string message, int elevatorIndex)
         {
             string path = "C:\\Users\\tshub\\Desktop\\Elevator_" + elevatorIndex + ".txt";
 
-            using (StreamWriter sw = new StreamWriter(path, true, System.Text.Encoding.Default))
+            lock (locker)
             {
-                sw.WriteLine(message);
+                using (StreamWriter sw = new StreamWriter(path, true, System.Text.Encoding.Default))
+                {
+                    sw.WriteLine(message);
+                }
             }
         }
     }

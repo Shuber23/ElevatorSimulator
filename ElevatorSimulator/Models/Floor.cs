@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,8 +11,8 @@ namespace ElevatorSimulator.Models
 {
     internal class Floor
     {
-        private List<Passenger> goingUpPassengerQueue = new List<Passenger>();
-        private List<Passenger> goingDownPassengerQueue = new List<Passenger>();
+        private ConcurrentBag<Passenger> goingUpPassengerQueue = new ConcurrentBag<Passenger>();
+        private ConcurrentBag<Passenger> goingDownPassengerQueue = new ConcurrentBag<Passenger>();
         public int floorIndex;
 
         public Floor(int floorIndex)
@@ -19,7 +20,7 @@ namespace ElevatorSimulator.Models
             this.floorIndex = floorIndex;
         }
 
-        public List<Passenger> GoingUpPassengerQueue
+        public ConcurrentBag<Passenger> GoingUpPassengerQueue
         {
             get
             {
@@ -27,7 +28,7 @@ namespace ElevatorSimulator.Models
             }
         }
 
-        public List<Passenger> GoingDownPassengerQueue
+        public ConcurrentBag<Passenger> GoingDownPassengerQueue
         {
             get
             {

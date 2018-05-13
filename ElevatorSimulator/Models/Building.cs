@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -47,7 +48,7 @@ namespace ElevatorSimulator.Models
         {
             for (int elevatorIndex = 0; elevatorIndex < elevatorCount; elevatorIndex++)
             {
-                elevators.Add(new Elevator(4, 300, elevatorIndex));
+                elevators.Add(new Elevator(4, 370, elevatorIndex));
             }
         }
     }

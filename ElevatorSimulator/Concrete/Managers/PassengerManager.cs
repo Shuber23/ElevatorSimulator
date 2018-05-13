@@ -41,7 +41,7 @@ namespace ElevatorSimulator.Concrete.Managers
             {
                 passenger.Direction = States.Direction.Down;
             }
-            Console.WriteLine("Passenger {0} direction updated!", passenger.passengerIndex);
+            //Console.WriteLine("Passenger {0} direction updated!", passenger.passengerIndex);
         }
     }
 }

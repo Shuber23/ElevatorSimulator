@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,8 +10,10 @@ namespace ElevatorSimulator.Abstract
 {
     interface IQueue
     {
-        void WorkWithQueue(Passenger passenger);
+        void AddToQueue(Passenger passenger);
+        void RemoveFromQueue(Passenger passenger);
         Passenger GetWaitingPassenger();
-        List<Passenger> GetAllPassengersOnFloorByDirection(int floorIndex, States.Direction direction);
+        ConcurrentBag<Passenger> GetAllPassengersOnFloorByDirection(int floorIndex, States.Direction direction);
+        List<ConcurrentBag<Passenger>> GetAllPassengers();
     }
 }

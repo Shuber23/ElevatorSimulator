@@ -13,19 +13,24 @@ namespace ElevatorSimulator
     {
         private TimerCallback timerCallback;
         private Timer timer;
+        private int counter = 0;
         private void Create(object obj)
         {
-            int number = new Random().Next(1, 101);
-            if (number > 51)
+            if (counter < 25)
             {
-                Dispatcher.GetInstance().PassengerManager.Create();
+                int number = new Random().Next(1, 101);
+                if (number > 51)
+                {
+                    counter++;
+                    Dispatcher.GetInstance().PassengerManager.Create();
+                }
             }
         }
 
         public void StartPassengerGenerator()
         {
             timerCallback = Create;
-            timer = new Timer(timerCallback, null, 0, 5000);
+            timer = new Timer(timerCallback, null, 0, 500);
         }
 
     }
